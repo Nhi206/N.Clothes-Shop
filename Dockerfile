@@ -110,4 +110,5 @@ CMD cp /etc/secrets/.env /var/www/html/.env && \
     php artisan route:clear || true && \
     php artisan storage:link || true && \
     php artisan migrate --force || true && \
+    php artisan optimize:clear && \
     apache2-foreground
