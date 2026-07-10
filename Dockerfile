@@ -1,6 +1,8 @@
 FROM php:8.3-apache
 
-# Cài các package cần thiết
+# ==========================
+# Install packages
+# ==========================
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -16,11 +18,14 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libicu-dev \
     nodejs \
-    npm
-# Cấu hình GD
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# ==========================
+# PHP Extensions
+# ==========================
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
-# Cài PHP Extensions
 RUN docker-php-ext-install \
     pdo \
     pdo_mysql \
@@ -29,40 +34,80 @@ RUN docker-php-ext-install \
     zip \
     intl
 
-# Enable Apache Rewrite
+# ==========================
+# Apache
+# ==========================
 RUN a2enmod rewrite
 
+# ==========================
 # Composer
+# ==========================
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+# Copy source
 COPY . .
 
-# Cài Composer
-RUN composer install --no-dev --optimize-autoloader
+# ==========================
+# Verify TiDB SSL Certificate
+# ==========================
+RUN ls -l storage/certs
+RUN cat storage/certs/isrgrootx1.pem | head -5
 
-# Cài Node modules
-RUN npm install
+# ==========================
+# Debug PHP
+# ==========================
+RUN php -v
+RUN php -m
+RUN php -i | grep -i openssl || true
+RUN php -i | grep -i mysql || true
+RUN php -r "var_dump(extension_loaded('pdo_mysql'));"
+RUN php -r "var_dump(PDO::getAvailableDrivers());"
 
+# ==========================
+# Install Composer
+# ==========================
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction
+
+# ==========================
 # Build Vite
+# ==========================
+RUN npm install
 RUN npm run build
 
-# Quyền ghi
-RUN mkdir -p storage/framework/cache \
+# ==========================
+# Storage Permission
+# ==========================
+RUN mkdir -p \
+    storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
     storage/logs \
-    bootstrap/cache && \
-    chmod -R 775 storage bootstrap/cache && \
-    chown -R www-data:www-data storage bootstrap/cache
+    bootstrap/cache
 
-# Apache config
+RUN chmod -R 775 storage bootstrap/cache
+
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+# ==========================
+# Apache Config
+# ==========================
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
 
+# ==========================
+# Start
+# ==========================
 CMD cp /etc/secrets/.env /var/www/html/.env && \
     php artisan config:clear && \
+    php artisan cache:clear || true && \
+    php artisan view:clear || true && \
+    php artisan route:clear || true && \
     php artisan storage:link || true && \
+    php artisan migrate --force || true && \
     apache2-foreground
