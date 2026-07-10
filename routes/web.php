@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TryOnController;
 
 Route::get('/', function () {
-    return view('layouts.app');
+    return 'Laravel OK';
 });
 
 require __DIR__.'/auth.php';

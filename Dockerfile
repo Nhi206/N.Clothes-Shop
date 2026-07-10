@@ -104,7 +104,10 @@ EXPOSE 80
 # Start
 # ==========================
 CMD cp /etc/secrets/.env /var/www/html/.env && \
-php artisan optimize:clear && \
-php artisan migrate --force && \
-tail -n 200 storage/logs/laravel.log && \
-apache2-foreground
+    php artisan config:clear && \
+    php artisan cache:clear || true && \
+    php artisan view:clear || true && \
+    php artisan route:clear || true && \
+    php artisan storage:link || true && \
+    php artisan migrate --force || true && \
+    apache2-foreground
