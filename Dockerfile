@@ -49,18 +49,20 @@ RUN npm install
 RUN npm run build
 
 # Quyền ghi
-RUN chown -R www-data:www-data storage bootstrap/cache
+RUN mkdir -p storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache
 
 # Apache config
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
 
-CMD ls -la /etc/secrets && \
-    cp /etc/secrets/.env /var/www/html/.env && \
-    echo "===== DB_CONNECTION =====" && \
-    grep DB_CONNECTION /var/www/html/.env && \
+CMD cp /etc/secrets/.env /var/www/html/.env && \
     php artisan config:clear && \
-    php artisan cache:clear && \
-    php artisan migrate --force || true && \
+    php artisan storage:link || true && \
     apache2-foreground
