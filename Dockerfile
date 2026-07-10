@@ -56,8 +56,11 @@ COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
 
-CMD php artisan storage:link || true; \
-    php artisan config:clear; \
-    php artisan cache:clear; \
-    php artisan migrate --force || true; \
+CMD ls -la /etc/secrets && \
+    cp /etc/secrets/.env /var/www/html/.env && \
+    echo "===== DB_CONNECTION =====" && \
+    grep DB_CONNECTION /var/www/html/.env && \
+    php artisan config:clear && \
+    php artisan cache:clear && \
+    php artisan migrate --force || true && \
     apache2-foreground
