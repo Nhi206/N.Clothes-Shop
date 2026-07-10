@@ -104,6 +104,9 @@ EXPOSE 80
 # Start
 # ==========================
 CMD if [ -f /etc/secrets/.env ]; then cp /etc/secrets/.env /var/www/html/.env; elif [ ! -f /var/www/html/.env ]; then cp /var/www/html/.env.example /var/www/html/.env; fi && \
+    mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache && \
     sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=file/' /var/www/html/.env && \
     sed -i 's/^CACHE_STORE=.*/CACHE_STORE=file/' /var/www/html/.env && \
     sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' /var/www/html/.env && \
