@@ -44,12 +44,10 @@ return [
             'strict' => true,
             'engine' => null,
 
-            'options' => extension_loaded('pdo_mysql')
-                ? DatabaseConfig::resolveMysqlOptions([
-                    'MYSQL_ATTR_SSL_CA' => env('MYSQL_ATTR_SSL_CA', ''),
-                    'DB_SSLMODE' => env('DB_SSLMODE', ''),
-                ])
-                : [],
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+        // THÊM ĐOẠN NÀY VÀO ĐỂ BẬT SSL VÀ TRỎ ĐẾN FILE CERT
+        PDO::MYSQL_ATTR_SSL_CA => storage_path('certs/isrgrootx1.pem'),
+    ]) : [],
         ],
 
         'mariadb' => [

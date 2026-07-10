@@ -31,6 +31,10 @@ class DatabaseConfigTest extends TestCase
             'DB_SSLMODE' => 'require',
         ]);
 
+        $this->assertSame(
+            str_replace('\\', '/', dirname(__DIR__, 2).'/storage/certs/isrgrootx1.pem'),
+            $options[\PDO::MYSQL_ATTR_SSL_CA]
+        );
         $this->assertFalse($options[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT]);
     }
 }
