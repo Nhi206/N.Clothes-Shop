@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: nclothes-shop
+
+    env: docker
+
+    plan: free
+
+    autoDeploy: true
