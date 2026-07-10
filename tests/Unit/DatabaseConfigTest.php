@@ -23,4 +23,18 @@ class DatabaseConfigTest extends TestCase
 
         $this->assertSame($path, DatabaseConfig::resolveSslCaPath($path));
     }
+
+    public function test_mysql_ssl_options_can_be_resolved_from_environment_values(): void
+    {
+        $options = DatabaseConfig::resolveMysqlOptions([
+            'MYSQL_ATTR_SSL_CA' => 'storage/certs/isrgrootx1.pem',
+            'DB_SSLMODE' => 'require',
+        ]);
+
+        $this->assertSame(
+            str_replace('\\', '/', dirname(__DIR__, 2).'/storage/certs/isrgrootx1.pem'),
+            $options[\PDO::MYSQL_ATTR_SSL_CA]
+        );
+        $this->assertTrue($options[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT]);
+    }
 }

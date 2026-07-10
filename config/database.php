@@ -45,11 +45,9 @@ return [
             'engine' => null,
 
             'options' => extension_loaded('pdo_mysql')
-                ? array_filter([
-                    PDO::MYSQL_ATTR_SSL_CA => DatabaseConfig::resolveSslCaPath(env(
-                        'MYSQL_ATTR_SSL_CA',
-                        'storage/certs/isrgrootx1.pem'
-                    )),
+                ? DatabaseConfig::resolveMysqlOptions([
+                    'MYSQL_ATTR_SSL_CA' => env('MYSQL_ATTR_SSL_CA', ''),
+                    'DB_SSLMODE' => env('DB_SSLMODE', ''),
                 ])
                 : [],
         ],
