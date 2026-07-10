@@ -17,14 +17,9 @@ class DatabaseConfig
     {
         $options = [];
 
-        $sslCaPath = self::resolveSslCaPath((string) ($env['MYSQL_ATTR_SSL_CA'] ?? env('MYSQL_ATTR_SSL_CA', '')));
-        if ($sslCaPath !== '' && file_exists($sslCaPath) && is_readable($sslCaPath)) {
-            $options[\PDO::MYSQL_ATTR_SSL_CA] = $sslCaPath;
-        }
-
         $sslMode = (string) ($env['DB_SSLMODE'] ?? env('DB_SSLMODE', ''));
-        if ($sslMode !== '') {
-            $options[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = $sslMode === 'verify-ca' || $sslMode === 'verify-identity';
+        if ($sslMode === 'require' || $sslMode === 'verify-ca' || $sslMode === 'verify-identity') {
+            $options[\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 
         return array_filter($options, static fn ($value) => $value !== null);
