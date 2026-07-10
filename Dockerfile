@@ -103,12 +103,16 @@ EXPOSE 80
 # ==========================
 # Start
 # ==========================
-CMD cp /etc/secrets/.env /var/www/html/.env && \
+CMD if [ -f /etc/secrets/.env ]; then cp /etc/secrets/.env /var/www/html/.env; elif [ ! -f /var/www/html/.env ]; then cp /var/www/html/.env.example /var/www/html/.env; fi && \
+    sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=file/' /var/www/html/.env && \
+    sed -i 's/^CACHE_STORE=.*/CACHE_STORE=file/' /var/www/html/.env && \
+    sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' /var/www/html/.env && \
+    php artisan key:generate --force || true && \
     php artisan config:clear && \
-    php artisan cache:clear || true && \
-    php artisan view:clear || true && \
-    php artisan route:clear || true && \
+    php artisan cache:clear && \
+    php artisan view:clear && \
+    php artisan route:clear && \
     php artisan storage:link || true && \
-    php artisan migrate --force || true && \
+    php artisan migrate --force && \
     php artisan optimize:clear && \
     apache2-foreground

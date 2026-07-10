@@ -1,7 +1,7 @@
 <?php
 
+use App\Support\DatabaseConfig;
 use Illuminate\Support\Str;
-use PDO;
 
 return [
 
@@ -46,10 +46,10 @@ return [
 
             'options' => extension_loaded('pdo_mysql')
                 ? array_filter([
-                    PDO::MYSQL_ATTR_SSL_CA => env(
+                    PDO::MYSQL_ATTR_SSL_CA => DatabaseConfig::resolveSslCaPath(env(
                         'MYSQL_ATTR_SSL_CA',
-                        storage_path('certs/isrgrootx1.pem')
-                    ),
+                        'storage/certs/isrgrootx1.pem'
+                    )),
                 ])
                 : [],
         ],
