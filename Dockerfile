@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y \
     unzip \
     zip \
     curl \
+    ca-certificates \
+    openssl \
     libzip-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
@@ -15,7 +17,6 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     nodejs \
     npm
-
 # Cấu hình GD
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
@@ -55,9 +56,8 @@ COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
 EXPOSE 80
 
-CMD php artisan storage:link || true && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan migrate --force || true && \
+CMD php artisan storage:link || true; \
+    php artisan config:clear; \
+    php artisan cache:clear; \
+    php artisan migrate --force || true; \
     apache2-foreground
