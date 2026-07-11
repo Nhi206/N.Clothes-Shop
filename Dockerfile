@@ -90,6 +90,7 @@ RUN mkdir -p \
     bootstrap/cache
 
 RUN chmod -R 775 storage bootstrap/cache
+
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 # ==========================
@@ -104,14 +105,12 @@ EXPOSE 80
 # ==========================
 CMD if [ -f /etc/secrets/.env ]; then cp /etc/secrets/.env /var/www/html/.env; elif [ ! -f /var/www/html/.env ]; then cp /var/www/html/.env.example /var/www/html/.env; fi && \
     mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
-    sed -i 's/^CACHE_STORE=.*/CACHE_STORE=file/' /var/www/html/.env && \
-    sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' /var/www/html/.env && \
+    php artisan config:clear && \
+    php artisan route:clear && \
+    php artisan view:clear && \
     php artisan key:generate --force || true && \
     php artisan storage:link || true && \
     php artisan migrate --force && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
     chown -R www-data:www-data storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache && \
     apache2-foreground
