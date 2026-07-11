@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class User extends Authenticatable
 {
     use HasFactory;
+
+    protected $attributes = [
+        'status' => 'active',
+    ];
+
     protected $fillable = [
         'name',
         'email',
