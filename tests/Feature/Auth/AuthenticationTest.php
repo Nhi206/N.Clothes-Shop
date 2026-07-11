@@ -15,6 +15,7 @@ class AuthenticationTest extends TestCase
         $response = $this->get('/login');
 
         $response->assertStatus(200);
+        $response->assertSee('bg-gray-100 dark:bg-gray-900');
     }
 
     public function test_users_can_authenticate_using_the_login_screen(): void

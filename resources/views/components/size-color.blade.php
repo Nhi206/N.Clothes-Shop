@@ -107,6 +107,7 @@
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json",
                 "X-CSRF-TOKEN": "{{ csrf_token() }}",
                 "X-Requested-With": "XMLHttpRequest"
             },

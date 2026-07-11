@@ -418,21 +418,38 @@ document.getElementById('addToCartForm').addEventListener('submit', function(e) 
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('[name="_token"]')?.value || '{{ csrf_token() }}',
             'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: new URLSearchParams(new FormData(this))
     })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            showNotification(data.message);
+    .then(async (response) => {
+        const data = await response.json().catch(() => null);
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                window.location.href = '{{ route("login") }}';
+                return;
+            }
+
+            throw new Error(data?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng');
+        }
+
+        if (data?.success) {
+            showNotification(data.message || 'Sản phẩm đã được thêm vào giỏ hàng');
             document.getElementById('quantity').value = '1';
             if (typeof updateHeaderCartCount !== 'undefined') {
                 updateHeaderCartCount();
             }
+            return;
         }
+
+        throw new Error(data?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng');
     })
-    .catch(err => console.error('Error:', err));
+    .catch(err => {
+        console.error('Error:', err);
+        showNotification(err.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng');
+    });
 });
 
 // Review Functions
