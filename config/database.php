@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 
 return [
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'mysql'),
 
     'connections' => [
 
@@ -24,7 +24,7 @@ return [
         'mysql' => [
             'driver' => 'mysql',
 
-            'url' => env('DATABASE_URL'),
+            // 'url' => env('DATABASE_URL'),
 
             'host' => env('DB_HOST'),
             'port' => env('DB_PORT'),
