@@ -103,7 +103,15 @@ EXPOSE 80
 # ==========================
 # Start
 # ==========================
-CMD if [ -f /etc/secrets/.env ]; then cp /etc/secrets/.env /var/www/html/.env; elif [ ! -f /var/www/html/.env ]; then cp /var/www/html/.env.example /var/www/html/.env; fi && \
+CMD if [ -f /etc/secrets/.env ]; then \
+        cp /etc/secrets/.env /var/www/html/.env; \
+    elif [ ! -f /var/www/html/.env ]; then \
+        cp /var/www/html/.env.example /var/www/html/.env; \
+    fi && \
+    # ÉP QUYỀN CHO USER WWW-DATA ĐƯỢC ĐỌC FILE .ENV NÀY
+    chown www-data:www-data /var/www/html/.env && \
+    chmod 644 /var/www/html/.env && \
+    \
     mkdir -p storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
     php artisan config:clear && \
     php artisan route:clear && \
