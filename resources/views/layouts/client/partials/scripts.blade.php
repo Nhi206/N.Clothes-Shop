@@ -17,18 +17,13 @@ if (localStorage.getItem('darkMode') === 'true') {
 }
 
 // Update wishlist and cart count on page load
-document.addEventListener('DOMContentLoaded', function() {
-    updateHeaderWishlistCount();
-    updateHeaderCartCount();
-});
-
 function updateHeaderWishlistCount() {
     fetch('{{ route('wishlist.count') }}', {
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json'
         },
-        credentials: 'same-origin'
+        credentials: 'include'
     })
     .then(response => {
         if (!response.ok) {
@@ -39,8 +34,9 @@ function updateHeaderWishlistCount() {
     .then(data => {
         const badge = document.getElementById('wishlist-count');
         if (badge) {
-            badge.textContent = data.count || 0;
-            badge.style.display = data.count > 0 ? 'flex' : 'none';
+            const count = Number(data.count) || 0;
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'flex' : 'none';
         }
     })
     .catch(err => console.error('Error loading wishlist count:', err));
@@ -52,7 +48,7 @@ function updateHeaderCartCount() {
             'X-Requested-With': 'XMLHttpRequest',
             'Accept': 'application/json'
         },
-        credentials: 'same-origin'
+        credentials: 'include'
     })
     .then(response => {
         if (!response.ok) {
@@ -63,12 +59,22 @@ function updateHeaderCartCount() {
     .then(data => {
         const badge = document.getElementById('cart-count');
         if (badge) {
-            badge.textContent = data.count || 0;
-            badge.style.display = data.count > 0 ? 'flex' : 'none';
+            const count = Number(data.count) || 0;
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'flex' : 'none';
         }
     })
     .catch(err => console.error('Error loading cart count:', err));
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateHeaderWishlistCount();
+    updateHeaderCartCount();
+});
+
+// Ensure count updates even if DOMContentLoaded was already fired before this script loaded
+updateHeaderWishlistCount();
+updateHeaderCartCount();
 </script>
 
 @stack('scripts')
