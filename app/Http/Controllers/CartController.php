@@ -14,7 +14,7 @@ class CartController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['add']);
+        $this->middleware('auth');
     }
 
     public function index()
@@ -34,18 +34,7 @@ class CartController extends Controller
 
     public function add(Request $request)
     {
-        if (!Auth::check()) {
-            if ($request->ajax() || $request->wantsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng',
-                ], 401);
-            }
-
-            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng');
-        }
-
-        $validated = $request->validate([
+        $request->validate([
             'product_id' => 'required|exists:products,id',
             'variant_id' => 'nullable|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
@@ -54,19 +43,19 @@ class CartController extends Controller
         $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
 
         $cartItem = CartItem::where('cart_id', $cart->id)
-                            ->where('product_id', $validated['product_id'])
-                            ->where('variant_id', $validated['variant_id'] ?? null)
+                            ->where('product_id', $request->product_id)
+                            ->where('variant_id', $request->variant_id)
                             ->first();
 
         if ($cartItem) {
-            $cartItem->quantity += $validated['quantity'];
+            $cartItem->quantity += $request->quantity;
             $cartItem->save();
         } else {
             CartItem::create([
                 'cart_id' => $cart->id,
-                'product_id' => $validated['product_id'],
-                'variant_id' => $validated['variant_id'] ?? null,
-                'quantity' => $validated['quantity'],
+                'product_id' => $request->product_id,
+                'variant_id' => $request->variant_id,
+                'quantity' => $request->quantity,
             ]);
         }
 
@@ -74,11 +63,11 @@ class CartController extends Controller
             $q->where('user_id', Auth::id());
         })->sum('quantity');
 
-        if ($request->ajax() || $request->wantsJson()) {
+        if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Sản phẩm đã được thêm vào giỏ hàng',
-                'cart_count' => $cartCount,
+                'cart_count' => $cartCount
             ]);
         }
 

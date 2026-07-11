@@ -27,8 +27,6 @@ Route::get('/', function () {
 
 require __DIR__.'/auth.php';
 
-Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-
 Route::middleware(['auth'])->group(function () {
     // Trang chủ
     Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -40,6 +38,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Giỏ hàng
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::patch('/cart/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/{id}', [CartController::class, 'remove'])->name('cart.remove');
 

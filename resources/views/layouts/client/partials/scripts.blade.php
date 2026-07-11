@@ -25,15 +25,22 @@ document.addEventListener('DOMContentLoaded', function() {
 function updateHeaderWishlistCount() {
     fetch('{{ route('wishlist.count') }}', {
         headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
     })
-    .then(r => r.json())
+    .then(response => {
+        if (!response.ok) {
+            return { count: 0 };
+        }
+        return response.json();
+    })
     .then(data => {
         const badge = document.getElementById('wishlist-count');
-        if (badge && data.count > 0) {
-            badge.textContent = data.count;
-            badge.style.display = 'flex';
+        if (badge) {
+            badge.textContent = data.count || 0;
+            badge.style.display = data.count > 0 ? 'flex' : 'none';
         }
     })
     .catch(err => console.error('Error loading wishlist count:', err));
@@ -42,15 +49,22 @@ function updateHeaderWishlistCount() {
 function updateHeaderCartCount() {
     fetch('{{ route('cart.count') }}', {
         headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
     })
-    .then(r => r.json())
+    .then(response => {
+        if (!response.ok) {
+            return { count: 0 };
+        }
+        return response.json();
+    })
     .then(data => {
         const badge = document.getElementById('cart-count');
-        if (badge && data.count > 0) {
-            badge.textContent = data.count;
-            badge.style.display = 'flex';
+        if (badge) {
+            badge.textContent = data.count || 0;
+            badge.style.display = data.count > 0 ? 'flex' : 'none';
         }
     })
     .catch(err => console.error('Error loading cart count:', err));
